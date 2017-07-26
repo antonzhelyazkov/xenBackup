@@ -67,7 +67,7 @@ fi
 logPrint START
 
 if [ -f $NAGIOS_LOG ]; then
-        echo "file $NAGIOS_LOG exists EXIT!"
+        logPrint "file $NAGIOS_LOG exists EXIT!"
         exit
 else
         echo $$ > $NAGIOS_LOG
