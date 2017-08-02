@@ -1,8 +1,8 @@
 #!/bin/bash
 #
 # Written By: Anton Antonov
-# Created date: Jul 25 2017
-# Version: 1.0.2
+# Created date: Aug 02 2017
+# Version: 1.0.3
 #
 
 verbose=1
@@ -10,7 +10,7 @@ DATE=`date +%Y%m%d%H%M%S`
 DATE_TS=`date +%s`
 XSNAME=`echo $HOSTNAME`
 UUIDFILE=/tmp/xen-uuids.txt
-WANTED_UUIDS=/tmp/xen-uuids-wanted.txt
+wantedUUIDsFile=/tmp/xen-uuids-wanted.txt
 NFS_SERVER_IP="10.10.10.10"
 MOUNTPOINT=/mnt/backup
 FILE_LOCATION_ON_NFS="/mnt/store/nfs/"
@@ -107,13 +107,19 @@ else
         echo $$ > $nagiosLog
 fi
 
-if [ -d $WANTED_UUIDS ]; then
-        logPrint "ERROR file $WANTED_UUIDS exists. Something went wrong. EXIT" 1 1
+rm -f $wantedUUIDsFile
+if [ -f $wantedUUIDsFile ]; then
+        logPrint "ERROR file $wantedUUIDsFile exists. Something went wrong. EXIT" 1 1
+fi
+
+rm -f $UUIDFILE
+if [ -f $UUIDFILE ]; then
+        logPrint "ERROR file $UUIDFILE exists. Something went wrong. EXIT" 1 1
 fi
 
 for UUID in "$@"
 do
-        echo $UUID >> $WANTED_UUIDS
+        echo $UUID >> $wantedUUIDsFile
 done
 
 if [ ! -d $MOUNTPOINT ]; then
@@ -148,12 +154,12 @@ xe vm-list is-control-domain=false is-a-snapshot=false | grep uuid | cut -d":" -
 
 COUNT_UUIDFILE=$(wc -l < "${UUIDFILE}")
 
-if [ -f $WANTED_UUIDS ]; then
-        COUNT_UUIDFILE_WANTED=$(wc -l < "${WANTED_UUIDS}")
+if [ -f $wantedUUIDsFile ]; then
+        COUNT_UUIDFILE_WANTED=$(wc -l < "${wantedUUIDsFile}")
+        echo "wanted count $COUNT_UUIDFILE_WANTED"
 fi
 
 if [ -z $COUNT_UUIDFILE ]; then
-        ERR_MSG="ERROR No VMs found"
         logPrint "ERROR No VMs found" 1 1
 fi
 
@@ -165,15 +171,16 @@ if [ -z $COUNT_UUIDFILE_WANTED ]; then
                 backup $VMUUID
         done < ${UUIDFILE}
 else
-        while read VMUUID
+        logPrint "backup custom list" 0 0
+        while read vmuuidWanted
         do
-                if grep -Fq "$VMUUID" ${UUIDFILE} ; then
-                        logPrint "Working on $VMUUID" 0 0
-                        backup $VMUUID
+                if grep -Fq "$vmuuidWanted" ${UUIDFILE} ; then
+                        logPrint "Working on $vmuuidWanted" 0 0
+                        backup $vmuuidWanted
                 else
-                        logPrint "ERROR UUID $VMUUID Not Found" 1 0
+                        logPrint "ERROR UUID $vmuuidWanted Not Found" 1 0
                 fi
-        done < ${WANTED_UUIDS}
+        done < ${wantedUUIDsFile}
 fi
 
 BACKUP_LOCATION=${MOUNTPOINT}/${XSNAME}
@@ -209,6 +216,6 @@ else
         else
                 rm -f $nagiosLog
         fi
-        rm -f $WANTED_UUIDS
+        rm -f $wantedUUIDsFile
         echo $DATE_TS > $LAST_RUN
 fi
