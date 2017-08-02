@@ -156,7 +156,6 @@ COUNT_UUIDFILE=$(wc -l < "${UUIDFILE}")
 
 if [ -f $wantedUUIDsFile ]; then
         COUNT_UUIDFILE_WANTED=$(wc -l < "${wantedUUIDsFile}")
-        echo "wanted count $COUNT_UUIDFILE_WANTED"
 fi
 
 if [ -z $COUNT_UUIDFILE ]; then
