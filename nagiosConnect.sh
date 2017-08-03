@@ -1,7 +1,6 @@
 #!/bin/bash
 
 tsNow=$(date +%s)
-timeNotStartedTreshold=20000
 
 STATE_OK=0
 STATE_WARNING=1
@@ -11,23 +10,25 @@ STATE_UNKNOWN=3
 scriptName="xenBackup.sh"
 ########################################
 
-USAGE="Usage: $(basename $0) [-h] [-n nagios log] [-l lar run]\n
+USAGE="Usage: $(basename $0) [-h] [-n nagios log] [-l lar run] [-t time interval]\n
         -n [FILE] Path to nagios log - zimbraSnapshot.log.\n
         -l [FILE] Lastrun file.\n
+        -t [INT] Time interval between executions.\n
         Please use full paths!
 "
 
-if [ "$1" == "-h" ] || [ "$1" == "" ] || [ "$#" != 4 ]; then
+if [ "$1" == "-h" ] || [ "$1" == "" ] || [ "$#" != 6 ]; then
         echo -e $USAGE
         exit $STATE_UNKNOWN
 fi
 
-while getopts n:l: option
+while getopts n:l:t: option
 do
         case "${option}"
                 in
                 n) nagiosLog=${OPTARG};;
                 l) lastRun=${OPTARG};;
+                t) timeNotStartedTreshold=${OPTARG};;
         esac
 done
 
