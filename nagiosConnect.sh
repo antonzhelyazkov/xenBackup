@@ -8,7 +8,7 @@ STATE_WARNING=1
 STATE_CRITICAL=2
 STATE_UNKNOWN=3
 
-zimbraScriptName="zimbraSnapshot.sh"
+xenScriptName="xenBackup.sh"
 ########################################
 
 USAGE="Usage: $(basename $0) [-h] [-n nagios log] [-l lar run]\n
