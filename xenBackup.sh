@@ -1,8 +1,8 @@
 #!/bin/bash
 #
 # Written By: Anton Antonov
-# Created date: Aug 02 2017
-# Version: 1.0.3
+# Created date: Aug 03 2017
+# Version: 1.0.4
 #
 
 verbose=1
@@ -62,17 +62,6 @@ fi
 
 }
 
-function moungNFS() {
-
-mount ${NFS_SERVER_IP}:${FILE_LOCATION_ON_NFS} ${MOUNTPOINT}
-EXIT_STATUS_MOUNT=$?
-if [ $EXIT_STATUS_MOUNT -ne 0 ]; then
-        logPrint "ERROR in mount ${NFS_SERVER_IP}:${FILE_LOCATION_ON_NFS} ${MOUNTPOINT}" 1 1
-else
-        logPrint "SUCCESS in mount ${NFS_SERVER_IP}:${FILE_LOCATION_ON_NFS} ${MOUNTPOINT}" 0 0
-fi
-}
-
 function backup() {
 UUID=$1
 VMNAME=`xe vm-list uuid=$UUID | grep name-label | cut -d":" -f2 | sed 's/^ *//g'`
@@ -127,13 +116,15 @@ if [ ! -d $MOUNTPOINT ]; then
         mkdir -p $MOUNTPOINT
         if [ ! -d $MOUNTPOINT ]; then
                 logPrint "ERROR could not create directory $MOUNTPOINT" 1 1
-        else
-                logPrint "Directory $MOUNTPOINT exists" 0 0
-                moungNFS
         fi
+fi
+
+mount ${NFS_SERVER_IP}:${FILE_LOCATION_ON_NFS} ${MOUNTPOINT}
+EXIT_STATUS_MOUNT=$?
+if [ $EXIT_STATUS_MOUNT -ne 0 ]; then
+        logPrint "ERROR in mount ${NFS_SERVER_IP}:${FILE_LOCATION_ON_NFS} ${MOUNTPOINT}" 1 1
 else
-        logPrint "Directory $MOUNTPOINT exists" 0 0
-        moungNFS
+        logPrint "SUCCESS in mount ${NFS_SERVER_IP}:${FILE_LOCATION_ON_NFS} ${MOUNTPOINT}" 0 0
 fi
 
 BACKUPPATH=${MOUNTPOINT}/${XSNAME}/${DATE}
