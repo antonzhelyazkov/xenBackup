@@ -8,7 +8,7 @@ STATE_WARNING=1
 STATE_CRITICAL=2
 STATE_UNKNOWN=3
 
-xenScriptName="xenBackup.sh"
+scriptName="xenBackup.sh"
 ########################################
 
 USAGE="Usage: $(basename $0) [-h] [-n nagios log] [-l lar run]\n
@@ -39,10 +39,10 @@ fi
 if [ -f $nagiosLog ]; then
         pidNumber=$(sed '1q;d' $nagiosLog)
         if [ -f /proc/$pidNumber/status ]; then
-                echo "OK $zimbraScriptName is running | running=1"
+                echo "OK $scriptName is running | running=1"
                 exit $STATE_OK
         else
-                echo "WARNING $zimbraScriptName is NOT running and INF $nagiosLog exists | running=0"
+                echo "WARNING $scriptName is NOT running and INF $nagiosLog exists | running=0"
                 exit $STATE_WARNING
         fi
 fi
