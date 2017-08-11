@@ -1,14 +1,14 @@
 #!/bin/bash
 #
 # Written By: Anton Antonov
-# Created date: Aug 03 2017
-# Version: 1.0.4
+# Created date: Aug 11 2017
+# Version: 1.0.5
 #
 
-verbose=1
-DATE=`date +%Y%m%d%H%M%S`
-DATE_TS=`date +%s`
-XSNAME=`echo $HOSTNAME`
+verbose=0
+DATE=$(date +%Y%m%d%H%M%S)
+DATE_TS=$(date +%s)
+XSNAME=$(echo $HOSTNAME)
 UUIDFILE=/tmp/xen-uuids.txt
 wantedUUIDsFile=/tmp/xen-uuids-wanted.txt
 NFS_SERVER_IP="10.10.10.10"
@@ -19,7 +19,7 @@ nagiosLog=/var/log/xenBackupNagios.inf
 LAST_RUN=/var/log/xenBackup.last
 
 KEEP_BACKUP_DAYS=4
-BACKUP_DAYS=`date +%Y%m%d%H%M%S -d "$KEEP_BACKUP_DAYS day ago"`
+BACKUP_DAYS=$(date +%Y%m%d%H%M%S -d "$KEEP_BACKUP_DAYS day ago")
 
 ### Functions ###
 
@@ -64,6 +64,7 @@ fi
 
 function backup() {
 UUID=$1
+echo $UUID
 VMNAME=`xe vm-list uuid=$UUID | grep name-label | cut -d":" -f2 | sed 's/^ *//g'`
 SNAPUUID=`xe vm-snapshot uuid=$UUID new-name-label="SNAPSHOT-$UUID-$DATE"`
 
@@ -144,6 +145,7 @@ fi
 xe vm-list is-control-domain=false is-a-snapshot=false | grep uuid | cut -d":" -f2 > ${UUIDFILE}
 
 COUNT_UUIDFILE=$(wc -l < "${UUIDFILE}")
+echo $COUNT_UUIDFILE
 
 if [ -f $wantedUUIDsFile ]; then
         COUNT_UUIDFILE_WANTED=$(wc -l < "${wantedUUIDsFile}")
