@@ -51,10 +51,10 @@ fi
 if [ -f $lastRun ] && [ ! -f $nagiosLog ]; then
         lastRunTS=$(sed '1q;d' $lastRun)
         if [ $(($lastRunTS + $timeNotStartedTreshold)) -lt $tsNow ]; then
-                echo "WARNING Last successful run started on $(date -s@$lastRunTS) | running=0"
+                echo "WARNING Last successful run started on $(date -d @$lastRunTS) | running=0"
                 exit $STATE_WARNING
         else
-                echo "OK backup finished without errors. Last successful run started on $(date -s@$lastRunTS) | running=0"
+                echo "OK backup finished without errors. Last successful run started on $(date -d @$lastRunTS) | running=0"
                 exit $STATE_OK
         fi
 fi
