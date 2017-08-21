@@ -1,4 +1,14 @@
 #!/bin/sh
+#
+#       1. Script must be started on backup (remote server)
+#       2. Script must be executed by user. ROOT could not start script
+#       3. You must create public key and copy to root on remote machite
+#       4. All backups are stored in $HOME/backups
+#       5. Create NFS Export for each client. /etc/exports
+#
+#
+#
+#
 
 USAGE="Usage: $(basename $0) [-h] [-i installation package] [-H zimbra host] [-b backup home] [-N nfs host address] [-s snapshot size]\n
         -i [FILE] Path to installation package on remote host - /root/zcs-8.7.11_GA_1854.RHEL7_64.20170531151956.tgz\n
@@ -57,7 +67,7 @@ currentDate=$(date +%Y%m%d%H%M%S)
 currentBackup="$backupHome/backups"
 currentBackupDir="$currentBackup/$currentDate"
 userInfFile="$currentBackupDir/user.inf"
-keepBackupDays=1
+keepBackupDays=5
 backupDays=$(date +%Y%m%d%H%M%S -d "$keepBackupDays day ago")
 
 sshBin="/usr/bin/ssh"
@@ -459,13 +469,18 @@ else
         if [ $remoteSnapshotCreationExitCode -ne 0 ]; then
                 umountAndRemove 1 0 0
                 logPrint "ERROR remote snapshot failed" 1 1
+        else
+                logPrint "OK snapshot created" 0 0
         fi
 
+        logPrint "Starting Zimbra" 0 0
         $sshBin -i $identityFile $remoteUser@$remoteHost "$zimbraBin start" 2>&1
         checkZimbraStatus2=$(checkZimbraStatus)
         if [ $checkZimbraStatus2 -ne 0 ]; then
                 umountAndRemove 1 0 1
                 logPrint "ERROR Zimbra could not start" 1 1
+        else
+                logPrint "Zimbra Started" 0 0
         fi
         sleep 5
 
@@ -492,6 +507,7 @@ else
                 logPrint "ERROR something is wrong. Directory $remoteMountPount/zimbra/ is missing" 1 1
         fi
 
+        logPrint "Start archiving" 0 0
         $sshBin -i $identityFile $remoteUser@$remoteHost "tar -c --use-compress-program=pigz -f $remoteMountNFS/$currentDate/zimbra.tar.gz $remoteMountPount/zimbra/"
         remoteTarExitStatus=$?
         if [ $remoteTarExitStatus -eq 0 ]; then
@@ -507,5 +523,6 @@ if grep -Fq "ERROR" $nagiosLog ; then
         logPrint "ERRORS are found. Must not remove $nagiosLog" 0 0
 else
         rm -f $nagiosLog
+        logPrint "FINISH" 0 0
 fi
 echo $dateTs > $lastRun
