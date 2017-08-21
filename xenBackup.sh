@@ -1,8 +1,8 @@
 #!/bin/bash
 #
 # Written By: Anton Antonov
-# Created date: Aug 11 2017
-# Version: 1.0.5
+# Created date: Aug 21 2017
+# Version: 1.0.6
 #
 
 verbose=0
@@ -13,7 +13,7 @@ UUIDFILE=/tmp/xen-uuids.txt
 wantedUUIDsFile=/tmp/xen-uuids-wanted.txt
 NFS_SERVER_IP="10.10.10.10"
 MOUNTPOINT=/mnt/backup
-FILE_LOCATION_ON_NFS="/mnt/store/nfs/"
+FILE_LOCATION_ON_NFS="/mnt/store/nfs"
 scriptLog=/var/log/xenBackup.log
 nagiosLog=/var/log/xenBackupNagios.inf
 LAST_RUN=/var/log/xenBackup.last
@@ -46,7 +46,7 @@ else
         fi
 fi
 
-echo `date` $logMessage >> $scriptLog
+echo $(date) $logMessage >> $scriptLog
 
 if [ $verbose -eq 1 ]; then
         echo $logMessage
@@ -65,8 +65,8 @@ fi
 function backup() {
 UUID=$1
 echo $UUID
-VMNAME=`xe vm-list uuid=$UUID | grep name-label | cut -d":" -f2 | sed 's/^ *//g'`
-SNAPUUID=`xe vm-snapshot uuid=$UUID new-name-label="SNAPSHOT-$UUID-$DATE"`
+VMNAME=$(xe vm-list uuid=$UUID | grep name-label | cut -d":" -f2 | sed 's/^ *//g')
+SNAPUUID=$(xe vm-snapshot uuid=$UUID new-name-label="SNAPSHOT-$UUID-$DATE")
 
 xe template-param-set is-a-template=false ha-always-run=false uuid=${SNAPUUID}
 TEMPLATE_STATUS=$?
@@ -176,7 +176,7 @@ else
 fi
 
 BACKUP_LOCATION=${MOUNTPOINT}/${XSNAME}
-BACKUP_DIRS=`ls $BACKUP_LOCATION`
+BACKUP_DIRS=$(ls $BACKUP_LOCATION)
 
 for DIR in $BACKUP_DIRS ; do
         if [ $DIR -lt $BACKUP_DAYS ]; then
