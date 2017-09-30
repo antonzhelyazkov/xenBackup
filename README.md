@@ -7,6 +7,6 @@ Backup script for XenServer
     2. Create backup of single or multiple snapchot
     3. Nagios connect.
 
-# Installation
+# Installation   
 
-    
+    wget https://raw.githubusercontent.com/antonzhelyazkov/xenScripts/master/xenBackup.sh /usr/local/bin/xenBackup.sh
