@@ -9,4 +9,4 @@ Backup script for XenServer
 
 # Installation   
 
-    wget https://raw.githubusercontent.com/antonzhelyazkov/xenScripts/master/xenBackup.sh /usr/local/bin/xenBackup.sh
+wget https://raw.githubusercontent.com/antonzhelyazkov/xenScripts/master/xenBackup.sh /usr/local/bin/xenBackup.sh
